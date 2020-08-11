@@ -36,8 +36,8 @@ let identifier = false;
 let timeout = null;
 // let failureImage_path = "/home/amit/Documents/aitester-dev/server-exec/executor/Image-logs/error_view.png";
 // let image_path = process.env.IMG_PATH || "/home/amit/Documents/aitester-dev/server-exec/executor/image.png";
-let failureImage_path = "/usr/src/dataphion/ai_testing/FlowExecutor/Image-logs/error_view.png";
-let image_path = process.env.IMG_PATH || "/usr/src/dataphion/ai_testing/FlowExecutor/image.png";
+let failureImage_path = process.env.ERR_IMG_PATH || "/srv/executor/error_view.png";
+let image_path = process.env.IMG_PATH || "/srv/executor/image.png";
 
 let PAGINATION_XPATH = null;
 
