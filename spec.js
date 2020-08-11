@@ -498,136 +498,134 @@ describe("Test end to end session..", function() {
 
   beforeEach(async function(done) {
     browser.setFileDetector(new remote.FileDetector());
-    browser.driver
+    /*browser.driver
       .manage()
       .window()
-      .maximize();
-    strapiReq().then(async function(d) {
-      console.log("d", d);
+      .maximize();*/
+    let d = await strapiReq()
+    console.log("d", d);
 
-      application_id = d.data.testcases[0].application.id;
+    application_id = d.data.testcases[0].application.id;
 
-      data = d;
-      done();
-      console.log("Received strapi data..");
+    data = d;
+    done();
+    console.log("Received strapi data..");
 
-      // Data driven file
-      console.log("ddt file data ------------->", data.data.testcases[0].ddt_file);
-      if (data.data.testcases[0].ddt_file) {
-        if (data.data.testcases[0].ddt_file.ext === ".json") {
-          // for json file
-          let response = await fetch(`${host}${data.data.testcases[0].ddt_file.url}`);
-          DRIVEN_DATA = await response.json();
-        } else if (data.data.testcases[0].ddt_file.ext === ".csv") {
-          // for csv file
-          var request = new XMLHttpRequest();
-          request.open("GET", `${host}${data.data.testcases[0].ddt_file.url}`, true);
-          request.send(null);
-          request.onreadystatechange = function() {
-            if (request.readyState === 4 && request.status === 200) {
-              var type = request.getResponseHeader("Content-Type");
-              if (type.indexOf("text") !== 1) {
-                console.log(request.responseText);
-                let csv = request.responseText;
-                var lines = csv.split("\n");
-                var result = [];
-                var headers = lines[0].split(",");
-                for (var i = 1; i < lines.length; i++) {
-                  var obj = {};
-                  var currentline = lines[i].split(",");
-                  for (var j = 0; j < headers.length; j++) {
-                    let val = currentline[j].trim();
-                    obj[headers[j]] = val.replace(/"/g, "");
+    // Data driven file
+    console.log("ddt file data ------------->", data.data.testcases[0].ddt_file);
+    if (data.data.testcases[0].ddt_file) {
+      if (data.data.testcases[0].ddt_file.ext === ".json") {
+        // for json file
+        let response = await fetch(`${host}${data.data.testcases[0].ddt_file.url}`);
+        DRIVEN_DATA = await response.json();
+      } else if (data.data.testcases[0].ddt_file.ext === ".csv") {
+        // for csv file
+        var request = new XMLHttpRequest();
+        request.open("GET", `${host}${data.data.testcases[0].ddt_file.url}`, true);
+        request.send(null);
+        request.onreadystatechange = function() {
+          if (request.readyState === 4 && request.status === 200) {
+            var type = request.getResponseHeader("Content-Type");
+            if (type.indexOf("text") !== 1) {
+              console.log(request.responseText);
+              let csv = request.responseText;
+              var lines = csv.split("\n");
+              var result = [];
+              var headers = lines[0].split(",");
+              for (var i = 1; i < lines.length; i++) {
+                var obj = {};
+                var currentline = lines[i].split(",");
+                for (var j = 0; j < headers.length; j++) {
+                  let val = currentline[j].trim();
+                  obj[headers[j]] = val.replace(/"/g, "");
+                }
+                result.push(obj);
+              }
+              console.log("result", result[0]);
+              DRIVEN_DATA = result[0];
+            }
+          }
+        };
+      } else if (data.data.testcases[0].ddt_file.ext === ".xlsx" || data.data.testcases[0].ddt_file.ext === ".xls") {
+        // for xlsx file
+        const getHeaders = xl_data => {
+          return new Promise((resolve, reject) => {
+            try {
+              console.log("trying to get the headers ...");
+              const workSheetsFromBuffer = xlsx.parse(xl_data, {
+                sheetRows: 2,
+                cellDates: true,
+                cellNF: false,
+                cellText: true
+              });
+              console.log("parsed the rows");
+              if (workSheetsFromBuffer.length > 1) {
+                console.log("found the output ... returning ...");
+                resolve({
+                  sheet1: {
+                    header: workSheetsFromBuffer[0]["data"][0],
+                    first_row: workSheetsFromBuffer[0]["data"][1]
+                  },
+                  sheet2: {
+                    header: workSheetsFromBuffer[1]["data"][0],
+                    first_row: workSheetsFromBuffer[1]["data"][1]
                   }
-                  result.push(obj);
-                }
-                console.log("result", result[0]);
-                DRIVEN_DATA = result[0];
-              }
-            }
-          };
-        } else if (data.data.testcases[0].ddt_file.ext === ".xlsx" || data.data.testcases[0].ddt_file.ext === ".xls") {
-          // for xlsx file
-          const getHeaders = xl_data => {
-            return new Promise((resolve, reject) => {
-              try {
-                console.log("trying to get the headers ...");
-                const workSheetsFromBuffer = xlsx.parse(xl_data, {
-                  sheetRows: 2,
-                  cellDates: true,
-                  cellNF: false,
-                  cellText: true
                 });
-                console.log("parsed the rows");
-                if (workSheetsFromBuffer.length > 1) {
-                  console.log("found the output ... returning ...");
-                  resolve({
-                    sheet1: {
-                      header: workSheetsFromBuffer[0]["data"][0],
-                      first_row: workSheetsFromBuffer[0]["data"][1]
-                    },
-                    sheet2: {
-                      header: workSheetsFromBuffer[1]["data"][0],
-                      first_row: workSheetsFromBuffer[1]["data"][1]
-                    }
-                  });
-                } else if (workSheetsFromBuffer.length === 1) {
-                  resolve({
-                    sheet1: { header: workSheetsFromBuffer[0]["data"][0], first_row: workSheetsFromBuffer[0]["data"][1] }
-                  });
-                } else {
-                  resolve(`Expected sheets: 1/2. Sheets in uploaded file: ${workSheetsFromBuffer.length}`);
-                }
-              } catch (error) {
-                console.error("Error in getHeaders function");
-                console.error(error);
-                reject(error);
+              } else if (workSheetsFromBuffer.length === 1) {
+                resolve({
+                  sheet1: { header: workSheetsFromBuffer[0]["data"][0], first_row: workSheetsFromBuffer[0]["data"][1] }
+                });
+              } else {
+                resolve(`Expected sheets: 1/2. Sheets in uploaded file: ${workSheetsFromBuffer.length}`);
               }
-            });
-          };
-          axios({
-            method: "get",
-            responseType: "arraybuffer",
-            url: `${host}${data.data.testcases[0].ddt_file.url}`
-          }).then(async response => {
-            // console.log(response.data);
-            let file_data = await getHeaders(response.data);
-            // console.log(file_data);
-            if (!!file_data.sheet1) {
-              // input field values
-              let obj = {};
-              if (!!file_data.sheet1.header) {
-                for (let i = 0; i < file_data.sheet1.header.length; i++) {
-                  obj[file_data.sheet1.header[i]] = file_data.sheet1.first_row[i];
-                }
-              }
-              // console.log("obj", obj);
-              DRIVEN_DATA = obj;
-            }
-            if (!!file_data.sheet2) {
-              // locator variablize
-              let locators = [];
-              for (let i = 0; i < file_data.sheet2.header.length; i++) {
-                let obj = {};
-
-                let prop = file_data.sheet2.header[i].split(".");
-                // console.log(prop);
-                for (let j = 0; j < prop.length; j++) {
-                  obj["tag"] = prop[0];
-                  obj["label"] = prop[1];
-                  obj["value"] = file_data.sheet2.first_row[i];
-                }
-                locators.push(obj);
-              }
-              console.log("locators values", locators);
-              LOCATORS_DATA = locators;
+            } catch (error) {
+              console.error("Error in getHeaders function");
+              console.error(error);
+              reject(error);
             }
           });
+        };
+        let response = axios({
+          method: "get",
+          responseType: "arraybuffer",
+          url: `${host}${data.data.testcases[0].ddt_file.url}`
+        })
+        // console.log(response.data);
+        let file_data = await getHeaders(response.data);
+        // console.log(file_data);
+        if (!!file_data.sheet1) {
+          // input field values
+          let obj = {};
+          if (!!file_data.sheet1.header) {
+            for (let i = 0; i < file_data.sheet1.header.length; i++) {
+              obj[file_data.sheet1.header[i]] = file_data.sheet1.first_row[i];
+            }
+          }
+          // console.log("obj", obj);
+          DRIVEN_DATA = obj;
+        }
+        if (!!file_data.sheet2) {
+          // locator variablize
+          let locators = [];
+          for (let i = 0; i < file_data.sheet2.header.length; i++) {
+            let obj = {};
+
+            let prop = file_data.sheet2.header[i].split(".");
+            // console.log(prop);
+            for (let j = 0; j < prop.length; j++) {
+              obj["tag"] = prop[0];
+              obj["label"] = prop[1];
+              obj["value"] = file_data.sheet2.first_row[i];
+            }
+            locators.push(obj);
+          }
+          console.log("locators values", locators);
+          LOCATORS_DATA = locators;
         }
       }
-    });
-
+    }
     await beforeExecution();
+    done();
   });
 
   it("get test data from server and start test", async done => {
@@ -846,7 +844,7 @@ describe("Test end to end session..", function() {
             } catch (error) {
               console.log(error);
               // reject(error);
-              resolve("elementb not found");
+              resolve("element not found");
             }
           });
         };
