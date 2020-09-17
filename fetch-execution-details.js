@@ -14,7 +14,8 @@ const testcase_id = process.env.TESTCASE_ID;
 const testsessionexecution_id = process.env.TESTSESSIONEXECUTION_ID;
 const environment_id = process.env.ENVIRONMENT_ID;
 const browser_name = process.env.BROWSER_NAME || "chrome";
-let testcaseexecution_id;
+let testcaseexecution_id = process.env.TESTCASEEXECUTION_ID;
+const node_id = process.env.NODE_ID;
 
 String.prototype.format = function() {
   var args = [].slice.call(arguments);
@@ -195,39 +196,42 @@ const beforeExecution = async function() {
     })
   );
 
-  // Get default type id from testsuite
-  try {
-    const testcaseexecution_req = await fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        query: `mutation{
-            createTestcaseexecution(input:{
-              data:{
-                status: "started",
-                type: "ui",
-                start_time:"${moment().format("MM-DD-YYYY H:mm:ss")}",
-                testcase:"${testcase_id}",
-                testsessionexecution:"${testsessionexecution_id}",
+  if ( ! node_id ) {
+    // Get default type id from testsuite
+    try {
+      const testcaseexecution_req = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          query: `mutation{
+              createTestcaseexecution(input:{
+                data:{
+                  status: "started",
+                  type: "ui",
+                  start_time:"${moment().format("MM-DD-YYYY H:mm:ss")}",
+                  testcase:"${testcase_id}",
+                  testsessionexecution:"${testsessionexecution_id}",
+                }
+              }) {
+                testcaseexecution{
+                  id
+                }
               }
-            }) {
-              testcaseexecution{
-                id
-              }
-            }
-          }`
-      })
-    });
-    const testcaseexecution_json = await testcaseexecution_req.json();
-    console.log(testcaseexecution_json);
-
-    // Set testcase execution id as a global
-    testcaseexecution_id = testcaseexecution_json.data.createTestcaseexecution.testcaseexecution.id;
-  } catch (error) {
-    console.log(error);
+            }`
+        })
+      });
+      const testcaseexecution_json = await testcaseexecution_req.json();
+      console.log(testcaseexecution_json);
+  
+      // Set testcase execution id as a global
+      testcaseexecution_id = testcaseexecution_json.data.createTestcaseexecution.testcaseexecution.id;
+    } catch (error) {
+      console.log(error);
+    }
   }
+
 };
 
 const beforeExecuteStep = async function(step) {
@@ -385,68 +389,74 @@ const failureUpdate = async function(step, error, imageId) {
 };
 
 const afterExecution = async function(status) {
-  // If last step of testcase
-  try {
-    await fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        query: `mutation {
-          updateTestcaseexecution(
-            input:{
-              where:{id:"${testcaseexecution_id}"}
-              data:{
-                status:"${status ? "completed" : "failed"}",
-                end_time:"${moment().format("MM-DD-YYYY H:mm:ss")}"
-              }
-            }
-          ){
-            testcaseexecution{
-              id
-            }
-          }
-        }`
-      })
-    });
-  } catch (error) {
-    console.log(error);
-  }
 
-  const aimatch_heal = await fetch(testsessionexecution + testsessionexecution_id, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json"
-    }
-  });
-  const aimatch_heal_json = await aimatch_heal.json();
 
-  if ("testsuite" in aimatch_heal_json) {
-    // if testsuite is not default then push to rabbitmq
-    if (!!aimatch_heal_json.testsuite && aimatch_heal_json.testsuite.suite_name !== "default") {
-      let tse_data = status ? { total_pass: Number(aimatch_heal_json.total_pass) + 1 } : { total_fail: Number(aimatch_heal_json.total_fail) + 1 };
-      fetch(testsessionexecution + testsessionexecution_id, {
-        method: "PUT",
+  if (!node_id) {
+    // If last step of testcase
+    try {
+      await fetch(url, {
+        method: "POST",
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify(tse_data)
+        body: JSON.stringify({
+          query: `mutation {
+            updateTestcaseexecution(
+              input:{
+                where:{id:"${testcaseexecution_id}"}
+                data:{
+                  status:"${status ? "completed" : "failed"}",
+                  end_time:"${moment().format("MM-DD-YYYY H:mm:ss")}"
+                }
+              }
+            ){
+              testcaseexecution{
+                id
+              }
+            }
+          }`
+        })
       });
-      sendresponse();
+    } catch (error) {
+      console.log(error);
     }
+    const aimatch_heal = await fetch(testsessionexecution + testsessionexecution_id, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json"
+      }
+    });
+    const aimatch_heal_json = await aimatch_heal.json();
+  
+    if ("testsuite" in aimatch_heal_json) {
+      // if testsuite is not default then push to rabbitmq
+      if (!!aimatch_heal_json.testsuite && aimatch_heal_json.testsuite.suite_name !== "default") {
+        let tse_data = status ? { total_pass: Number(aimatch_heal_json.total_pass) + 1 } : { total_fail: Number(aimatch_heal_json.total_fail) + 1 };
+        fetch(testsessionexecution + testsessionexecution_id, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(tse_data)
+        });
+        sendresponse();
+      }
+    }
+  
+    // Send testcase execution completed msg to strapi
+    await socket.emit(
+      "ui_execution",
+      (done_testcaseexecution = {
+        status: status ? "testcaseexecution completed" : "testcaseexecution failed",
+        testcase_id: testcase_id,
+        testcaseexecution_id: testcaseexecution_id,
+        end_time: moment().format("MM-DD-YYYY H:mm:ss")
+      })
+    );
+  }else {
+    sendresponsetestcase();
   }
 
-  // Send testcase execution completed msg to strapi
-  await socket.emit(
-    "ui_execution",
-    (done_testcaseexecution = {
-      status: status ? "testcaseexecution completed" : "testcaseexecution failed",
-      testcase_id: testcase_id,
-      testcaseexecution_id: testcaseexecution_id,
-      end_time: moment().format("MM-DD-YYYY H:mm:ss")
-    })
-  );
 };
 
 const sendresponse = () => {
@@ -454,6 +464,28 @@ const sendresponse = () => {
     conn.createChannel((err, ch) => {
       const q = "testdecider";
       const msg = { testsessionid: Number(testsessionexecution_id), environment_id, browser: browser_name };
+      console.log(`\n PUSHING ${testsessionexecution_id} TO QUEUE ${q} ON amqp://localhost`);
+      ch.assertQueue(q, { durable: false });
+      ch.sendToQueue(q, Buffer.from(JSON.stringify(msg)));
+    });
+    setTimeout(() => {
+      conn.close();
+    }, 500);
+  });
+};
+const sendresponsetestcase = () => {
+  amqp.connect(rmq_host, (err, conn) => {
+    conn.createChannel((err, ch) => {
+      const q ="decider";
+      const msg = {
+        id: Number(node_id),
+        testcaseid: Number(testcase_id),
+        testsessionid: Number(testsessionexecution_id),
+        environment_id,
+        browser: browser_name,
+        testcaseexecutionid: Number(testcaseexecution_id),
+        index : 1
+      };
       console.log(`\n PUSHING ${testsessionexecution_id} TO QUEUE ${q} ON amqp://localhost`);
       ch.assertQueue(q, { durable: false });
       ch.sendToQueue(q, Buffer.from(JSON.stringify(msg)));
