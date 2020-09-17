@@ -17,6 +17,7 @@ const browser_name = process.env.BROWSER_NAME || "chrome";
 let testcaseexecution_id = process.env.TESTCASEEXECUTION_ID;
 const node_id = process.env.NODE_ID;
 const api_testcase_id = process.env.API_TESTCASE_ID;
+const title = process.env.TITLE
 
 String.prototype.format = function() {
   var args = [].slice.call(arguments);
@@ -456,6 +457,37 @@ const afterExecution = async function(status) {
     );
   }else {
     sendresponsetestcase(status);
+
+    try {
+      await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          query: `mutation{
+            createFlowstep(input:{
+              data:{
+                title: ${title},
+                type: "testcase",
+                status: ${status ? "successfull" : "fail"},
+                node_id:${node_id}
+                index: ${step.sequence_number},
+                testcaseexecution: "${testcaseexecution_id}",
+              }
+            }){
+              flowstep{
+                  id
+              }
+            }
+          }`,
+        }),
+      }).then((response) => {
+        // console.log("response ------------>", response);
+      });
+    } catch (error) {
+      console.log(error);
+    }
   }
 
 };
