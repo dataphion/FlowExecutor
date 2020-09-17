@@ -16,6 +16,7 @@ const environment_id = process.env.ENVIRONMENT_ID;
 const browser_name = process.env.BROWSER_NAME || "chrome";
 let testcaseexecution_id = process.env.TESTCASEEXECUTION_ID;
 const node_id = process.env.NODE_ID;
+const api_testcase_id = process.env.API_TESTCASE_ID;
 
 String.prototype.format = function() {
   var args = [].slice.call(arguments);
@@ -454,7 +455,7 @@ const afterExecution = async function(status) {
       })
     );
   }else {
-    sendresponsetestcase();
+    sendresponsetestcase(status);
   }
 
 };
@@ -473,18 +474,20 @@ const sendresponse = () => {
     }, 500);
   });
 };
-const sendresponsetestcase = () => {
+const sendresponsetestcase = (status) => {
   amqp.connect(rmq_host, (err, conn) => {
     conn.createChannel((err, ch) => {
       const q ="decider";
       const msg = {
-        id: Number(node_id),
-        testcaseid: Number(testcase_id),
-        testsessionid: Number(testsessionexecution_id),
+        status,
+        id: node_id,
+        testcaseid: Number(api_testcase_id),
+        testsessionexecutionid: Number(testsessionexecution_id),
+        testcaseexecutionid: Number(testcaseexecution_id),
         environment_id,
         browser: browser_name,
-        testcaseexecutionid: Number(testcaseexecution_id),
-        index : 1
+        index: 1,
+        type: "testcase"
       };
       console.log(`\n PUSHING ${testsessionexecution_id} TO QUEUE ${q} ON amqp://localhost`);
       ch.assertQueue(q, { durable: false });
