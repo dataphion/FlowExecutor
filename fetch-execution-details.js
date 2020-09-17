@@ -456,7 +456,6 @@ const afterExecution = async function(status) {
       })
     );
   }else {
-    sendresponsetestcase(status);
 
     try {
       await fetch(url, {
@@ -489,6 +488,8 @@ const afterExecution = async function(status) {
       console.log(error);
     }
   }
+  
+  sendresponsetestcase(status);
 
 };
 
