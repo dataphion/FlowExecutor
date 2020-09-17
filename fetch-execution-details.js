@@ -471,7 +471,7 @@ const afterExecution = async function(status) {
                 type: "testcase",
                 status: ${status ? "successfull" : "fail"},
                 node_id:${node_id}
-                index: ${step.sequence_number},
+                index: 1,
                 testcaseexecution: "${testcaseexecution_id}",
               }
             }){
