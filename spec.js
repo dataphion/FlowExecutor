@@ -41,13 +41,13 @@ let image_path = process.env.IMG_PATH || "/srv/executor/image.png";
 
 let PAGINATION_XPATH = null;
 
-describe("Test end to end session..", function() {
+describe("Test end to end session..", function () {
   let data = {};
   let ai_data = {};
   jasmine.DEFAULT_TIMEOUT_INTERVAL = 100000;
   let status = true;
 
-  let checkelementpresent = async function(type, locator, all = false) {
+  let checkelementpresent = async function (type, locator, all = false) {
     try {
       ele_present_timeout = timeout || 10000;
       if (all) {
@@ -81,7 +81,7 @@ describe("Test end to end session..", function() {
   };
 
   // check if element is still visible (wait till element is invisible)
-  let checkElementInvisibility = async function(element, timeout) {
+  let checkElementInvisibility = async function (element, timeout) {
     try {
       let invisibility = await browser.wait(EC.invisibilityOf(element), timeout);
       if (invisibility) {
@@ -99,7 +99,7 @@ describe("Test end to end session..", function() {
   };
 
   // check if element is visible (wait till element visibility)
-  let checkElementVisiblilty = async function(element, timeout) {
+  let checkElementVisiblilty = async function (element, timeout) {
     try {
       let visible = await browser.wait(EC.visibilityOf(element), timeout);
       if (visible) {
@@ -115,7 +115,7 @@ describe("Test end to end session..", function() {
     }
   };
 
-  let checkECconditionForMouseclick = async function(element, isclickable = true, isVisible = true) {
+  let checkECconditionForMouseclick = async function (element, isclickable = true, isVisible = true) {
     let isPresent = EC.presenceOf(element);
     console.log("isPresent--->", isPresent);
     console.log(status);
@@ -123,7 +123,7 @@ describe("Test end to end session..", function() {
     return status;
   };
 
-  let checkECcondition = async function(element, isclickable = true, isVisible = true) {
+  let checkECcondition = async function (element, isclickable = true, isVisible = true) {
     let isPresent = EC.presenceOf(element);
     console.log("isPresent--->", isPresent);
 
@@ -155,7 +155,7 @@ describe("Test end to end session..", function() {
   };
 
   // replace values for locators {dynamic locators value}
-  let get_locators = async function(objectrepository, selector) {
+  let get_locators = async function (objectrepository, selector) {
     console.log("test locators----------------------------->");
     let query = {};
     let regex = /{{(.+?)}}/g; // regex for double curly braces
@@ -184,7 +184,7 @@ describe("Test end to end session..", function() {
   };
 
   //// get best matching identifier
-  let get_best_matching_identifier = async function(objectrepository, action_type = "") {
+  let get_best_matching_identifier = async function (objectrepository, action_type = "") {
     console.log("Finding element using selectors...");
 
     //----------------------- update heal component count in strapi --------------------
@@ -202,11 +202,11 @@ describe("Test end to end session..", function() {
     const healed_component = await fetch(url, {
       method: "POST",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        query
-      })
+        query,
+      }),
     });
     let get_healed_component = await healed_component.json();
     console.log("get_healed_component -->", get_healed_component);
@@ -216,14 +216,14 @@ describe("Test end to end session..", function() {
     // update
     // console.log("update------->");
     let heal_component = {
-      heal_count: get_healed_component.heal_count + 1
+      heal_count: get_healed_component.heal_count + 1,
     };
     await fetch(`${host}/healedcomponents/${get_healed_component.id}`, {
       method: "PUT",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify(heal_component)
+      body: JSON.stringify(heal_component),
     });
 
     // ---------------------- updation done -------------
@@ -288,7 +288,7 @@ describe("Test end to end session..", function() {
       ELEMENT_FOUND = webelement ? true : false;
       if (webelement) {
         bestMatchingData.push({
-          name: selector
+          name: selector,
         });
         ELEMENT_FOUND = true;
         console.log("found by Name");
@@ -300,12 +300,7 @@ describe("Test end to end session..", function() {
     // Condition for found by CLASS and TEXT COMBO
     if (objectrepository.element_css && objectrepository.element_css.length > 0 && !ELEMENT_FOUND) {
       let element_class = objectrepository.element_css;
-      let tmp_class =
-        "." +
-        element_class
-          .trim()
-          .split(" ")
-          .join(".");
+      let tmp_class = "." + element_class.trim().split(" ").join(".");
       console.log("Trying by Class ->", tmp_class);
       let selector = await get_locators(objectrepository, tmp_class);
       let count = await element.all(by.css(selector)).count();
@@ -318,7 +313,7 @@ describe("Test end to end session..", function() {
         webelement = await checkelementpresent("class", by.cssContainingText(selector, objectrepository.value));
         if (webelement) {
           bestMatchingData.push({
-            cssContainingText: [selector, objectrepository.value]
+            cssContainingText: [selector, objectrepository.value],
           });
           ELEMENT_FOUND = true;
           console.log("Found by Class ->", selector);
@@ -329,7 +324,7 @@ describe("Test end to end session..", function() {
         webelement = await checkelementpresent("class", by.css(selector));
         if (webelement) {
           bestMatchingData.push({
-            css: selector
+            css: selector,
           });
           ELEMENT_FOUND = true;
           console.log("Found by Class ->", selector);
@@ -361,14 +356,14 @@ describe("Test end to end session..", function() {
         console.log("Doing AI Matching..................");
         // ----------------- update vision used count ---------------
         let heal_component = {
-          vision_count: get_healed_component.vision_count + 1
+          vision_count: get_healed_component.vision_count + 1,
         };
         await fetch(`${host}/healedcomponents/${get_healed_component.id}`, {
           method: "PUT",
           headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
           },
-          body: JSON.stringify(heal_component)
+          body: JSON.stringify(heal_component),
         });
 
         // ---------------upate done
@@ -391,7 +386,7 @@ describe("Test end to end session..", function() {
         while (i < threshold) {
           console.log(i);
           let image;
-          await browser.takeScreenshot().then(async function(png) {
+          await browser.takeScreenshot().then(async function (png) {
             console.log(typeof png);
             image = png;
           });
@@ -439,7 +434,7 @@ describe("Test end to end session..", function() {
   };
 
   //// get previous best match
-  let get_previous_best_match = async function(strapiBestMatch) {
+  let get_previous_best_match = async function (strapiBestMatch) {
     console.log("Using best match");
     bestMatchingData = [];
     console.log(strapiBestMatch[0]);
@@ -454,12 +449,12 @@ describe("Test end to end session..", function() {
       return await checkelementpresent("name", by.name(strapiBestMatch[0][key]));
     } else if (key === "css") {
       bestMatchingData.push({
-        css: strapiBestMatch[0][key]
+        css: strapiBestMatch[0][key],
       });
       return await checkelementpresent("check", by.css(strapiBestMatch[0][key]));
     } else if (key === "cssContainingText") {
       bestMatchingData.push({
-        cssContainingText: [strapiBestMatch[0][key][0], strapiBestMatch[0][key][1]]
+        cssContainingText: [strapiBestMatch[0][key][0], strapiBestMatch[0][key][1]],
       });
       return await checkelementpresent("cssContainingText", by.cssContainingText(strapiBestMatch[0][key][0], strapiBestMatch[0][key][1]));
     } else if (key === "xpath") {
@@ -471,7 +466,7 @@ describe("Test end to end session..", function() {
     }
   };
 
-  let send_key_downs = async function(element, key) {
+  let send_key_downs = async function (element, key) {
     console.log("came to send_key_downs");
 
     switch (key[1]) {
@@ -496,13 +491,10 @@ describe("Test end to end session..", function() {
     }
   };
 
-  beforeEach(async function(done) {
+  beforeEach(async function (done) {
     browser.setFileDetector(new remote.FileDetector());
-    /*browser.driver
-      .manage()
-      .window()
-      .maximize();*/
-    let d = await strapiReq()
+    browser.driver.manage().window().maximize();
+    let d = await strapiReq();
     console.log("d", d);
 
     application_id = d.data.testcases[0].application.id;
@@ -523,7 +515,7 @@ describe("Test end to end session..", function() {
         var request = new XMLHttpRequest();
         request.open("GET", `${host}${data.data.testcases[0].ddt_file.url}`, true);
         request.send(null);
-        request.onreadystatechange = function() {
+        request.onreadystatechange = function () {
           if (request.readyState === 4 && request.status === 200) {
             var type = request.getResponseHeader("Content-Type");
             if (type.indexOf("text") !== 1) {
@@ -548,7 +540,7 @@ describe("Test end to end session..", function() {
         };
       } else if (data.data.testcases[0].ddt_file.ext === ".xlsx" || data.data.testcases[0].ddt_file.ext === ".xls") {
         // for xlsx file
-        const getHeaders = xl_data => {
+        const getHeaders = (xl_data) => {
           return new Promise((resolve, reject) => {
             try {
               console.log("trying to get the headers ...");
@@ -556,7 +548,7 @@ describe("Test end to end session..", function() {
                 sheetRows: 2,
                 cellDates: true,
                 cellNF: false,
-                cellText: true
+                cellText: true,
               });
               console.log("parsed the rows");
               if (workSheetsFromBuffer.length > 1) {
@@ -564,16 +556,16 @@ describe("Test end to end session..", function() {
                 resolve({
                   sheet1: {
                     header: workSheetsFromBuffer[0]["data"][0],
-                    first_row: workSheetsFromBuffer[0]["data"][1]
+                    first_row: workSheetsFromBuffer[0]["data"][1],
                   },
                   sheet2: {
                     header: workSheetsFromBuffer[1]["data"][0],
-                    first_row: workSheetsFromBuffer[1]["data"][1]
-                  }
+                    first_row: workSheetsFromBuffer[1]["data"][1],
+                  },
                 });
               } else if (workSheetsFromBuffer.length === 1) {
                 resolve({
-                  sheet1: { header: workSheetsFromBuffer[0]["data"][0], first_row: workSheetsFromBuffer[0]["data"][1] }
+                  sheet1: { header: workSheetsFromBuffer[0]["data"][0], first_row: workSheetsFromBuffer[0]["data"][1] },
                 });
               } else {
                 resolve(`Expected sheets: 1/2. Sheets in uploaded file: ${workSheetsFromBuffer.length}`);
@@ -588,8 +580,8 @@ describe("Test end to end session..", function() {
         let response = axios({
           method: "get",
           responseType: "arraybuffer",
-          url: `${host}${data.data.testcases[0].ddt_file.url}`
-        })
+          url: `${host}${data.data.testcases[0].ddt_file.url}`,
+        });
         // console.log(response.data);
         let file_data = await getHeaders(response.data);
         // console.log(file_data);
@@ -628,11 +620,11 @@ describe("Test end to end session..", function() {
     done();
   });
 
-  it("get test data from server and start test", async done => {
+  it("get test data from server and start test", async (done) => {
     let tcc = data.data.testcases[0].testcasecomponents;
 
     try {
-      tcc = tcc.sort(function(a, b) {
+      tcc = tcc.sort(function (a, b) {
         var x = Number(a["sequence_number"], 10);
         var y = Number(b["sequence_number"], 10);
 
@@ -678,7 +670,7 @@ describe("Test end to end session..", function() {
 
         // ------------------- select working tab -----------------------
         let windowHandles = browser.getAllWindowHandles();
-        await windowHandles.then(async function(handles) {
+        await windowHandles.then(async function (handles) {
           let tab_index;
           if (tcc[i].objectrepository.current_tab) {
             tab_index = tcc[i].objectrepository.current_tab;
@@ -691,7 +683,7 @@ describe("Test end to end session..", function() {
           await browser
             .switchTo()
             .window(tabHandler)
-            .then(function() {
+            .then(function () {
               console.log("---------------switched tabs---------");
             });
         });
@@ -763,7 +755,7 @@ describe("Test end to end session..", function() {
                       actual_xpath = `${xpath_[0]}tr[${i}]/td[${j}]`;
                       await element(by.xpath(`${xpath_[0]}tr[${i}]/td[${j}]`))
                         .getText()
-                        .then(function(text) {
+                        .then(function (text) {
                           // GET COLUMN DATA
                           current_row_data.push(text);
                         });
@@ -787,7 +779,7 @@ describe("Test end to end session..", function() {
                   // CHECK IF IT COMES TO LAST PAGE/ NEXT PAGE XPATH ELEMENT DISABLED
                   await element(by.xpath(grid_pagination_xpath))
                     .getAttribute("disabled")
-                    .then(function(value) {
+                    .then(function (value) {
                       if (value) {
                         FOUND_ELEMENT = true;
                         pagination = false;
@@ -934,10 +926,7 @@ describe("Test end to end session..", function() {
           }
           //if (condition) {
           if (identifier) {
-            await browser
-              .actions()
-              .mouseMove(identifier)
-              .perform();
+            await browser.actions().mouseMove(identifier).perform();
           } else {
             throw "Cannot find Element";
           }
@@ -1011,16 +1000,16 @@ describe("Test end to end session..", function() {
               let filename = tcc[i].objectrepository.fileupload_url.name;
               const file = fs.createWriteStream(`${ch_path}/${filename}`);
               const request = http
-                .get(host + tcc[i].objectrepository.fileupload_url.url, async function(response) {
+                .get(host + tcc[i].objectrepository.fileupload_url.url, async function (response) {
                   response.pipe(file);
-                  file.on("finish", function() {
+                  file.on("finish", function () {
                     file.close(); // close() is async, call cb after close completes.
                   });
                   let absolutePath = path.resolve(ch_path, filename);
                   let check = await checkECcondition(identifier, false, false);
                   check ? await identifier.sendKeys(absolutePath) : "";
                 })
-                .on("error", function(err) {
+                .on("error", function (err) {
                   fs.unlink(dest);
                 });
               await browser.driver.sleep(15000);
@@ -1043,7 +1032,7 @@ describe("Test end to end session..", function() {
               captured_row_data.push(d.replace(/\n/g, ""));
             }
             // GET FULL XPATH WHICH IS LONGER IN LENGTH
-            let xpath_ = tcc[i].objectrepository.element_xpaths.sort(function(a, b) {
+            let xpath_ = tcc[i].objectrepository.element_xpaths.sort(function (a, b) {
               return b.length - a.length;
             })[0];
             xpath_ = xpath_.split("tr");
@@ -1131,8 +1120,8 @@ describe("Test end to end session..", function() {
   }, 1200000);
 
   async function failureScreenShot() {
-    let id = await browser.takeScreenshot().then(async function(png) {
-      let saveImage = await fs.writeFile(failureImage_path, png, { encoding: "base64" }, async function(err) {
+    let id = await browser.takeScreenshot().then(async function (png) {
+      let saveImage = await fs.writeFile(failureImage_path, png, { encoding: "base64" }, async function (err) {
         console.log("file_created");
       });
       // let output = Buffer.from(png);
@@ -1156,7 +1145,7 @@ describe("Test end to end session..", function() {
     return id;
   }
 
-  afterEach(async function(done) {
+  afterEach(async function (done) {
     console.log(done);
     await afterExecution(status);
     done();
