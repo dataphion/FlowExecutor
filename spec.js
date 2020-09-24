@@ -842,7 +842,7 @@ describe("Test end to end session..", function () {
         };
 
         // ---------------------switched to working tab----------------
-
+        console.log("steps action ---->", tcc[i].objectrepository.action);
         console.log("Best match from Strapi");
         if (tcc[i].objectrepository.action === "custom") {
           console.log("came to custom steps");
@@ -1081,6 +1081,52 @@ describe("Test end to end session..", function () {
               console.log("----------element not found------------------");
               throw "Cannot find Element";
             }
+          }
+        } else if (tcc[i].objectrepository.action === "text_validation") {
+          if (strapiBestMatch.length > 0) {
+            identifier = await get_previous_best_match(strapiBestMatch);
+          }
+          if (!identifier) {
+            identifier = await get_best_matching_identifier(tcc[i].objectrepository);
+          }
+
+          if (identifier) {
+            console.log("");
+            let validate_text = "";
+            if (tcc[i].objectrepository.element_value) {
+              validate_text = tcc[i].objectrepository.element_value;
+            } else if (tcc[i].objectrepository.text) {
+              validate_text = tcc[i].objectrepository.text;
+            }
+            console.log("validation text -->", validate_text);
+
+            let element_text = await identifier.getText();
+            if (!element_text) {
+              element_text = await identifier.getAttribute("value");
+            }
+            console.log("found element text --->", element_text);
+            if (validate_text === element_text) {
+              console.log("validation success");
+            } else {
+              throw "Text validation failed!";
+            }
+          } else {
+            console.log("----------element not found------------------");
+            throw "Text validation failed!";
+          }
+        } else if (tcc[i].objectrepository.action === "element_validation") {
+          if (strapiBestMatch.length > 0) {
+            identifier = await get_previous_best_match(strapiBestMatch);
+          }
+          if (!identifier) {
+            identifier = await get_best_matching_identifier(tcc[i].objectrepository);
+          }
+
+          if (identifier) {
+            console.log("element validation success");
+          } else {
+            console.log("----------element not found------------------");
+            throw "Element validation failed!";
           }
         } else if (tcc[i].objectrepository.action === "dropdown") {
           identifier ? console.log("hai bhai") : console.log("nahi hai");
