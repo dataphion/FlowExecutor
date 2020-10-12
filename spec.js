@@ -169,6 +169,8 @@ describe("Test end to end session..", function () {
       console.log("query----------->", query);
       // replace double braces with actual values
       let replaceDoubleBraces = async (str, result) => {
+        console.log("string", str);
+        console.log("result --->", result);
         return str.replace(/{{(.+?)}}/g, (_, g1) => result[g1] || g1);
       };
       let ele_selector = await replaceDoubleBraces(selector, query);
@@ -541,6 +543,7 @@ describe("Test end to end session..", function () {
       } else if (data.data.testcases[0].ddt_file.ext === ".xlsx" || data.data.testcases[0].ddt_file.ext === ".xls") {
         // for xlsx file
         const getHeaders = (xl_data) => {
+          console.log("xls data --->", xl_data);
           return new Promise((resolve, reject) => {
             try {
               console.log("trying to get the headers ...");
@@ -577,12 +580,13 @@ describe("Test end to end session..", function () {
             }
           });
         };
-        let response = axios({
+        console.log("data --->", `${host}${data.data.testcases[0].ddt_file.url}`);
+        let response = await axios({
           method: "get",
           responseType: "arraybuffer",
           url: `${host}${data.data.testcases[0].ddt_file.url}`,
         });
-        // console.log(response.data);
+        console.log("response data -->", response.data);
         let file_data = await getHeaders(response.data);
         // console.log(file_data);
         if (!!file_data.sheet1) {
