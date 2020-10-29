@@ -1075,9 +1075,9 @@ describe("Test end to end session..", function () {
             if (identifier) {
               let check = await checkECconditionForMouseclick(identifier);
               console.log("is element available ------------->", check);
-              await browser.executeScript("arguments[0].click()", identifier);
-              // let available = check ? await check_availability(identifier) : false;
-              // available ? await identifier.click() : console.log("Available but cannot cick because of overlay...");
+              // await browser.executeScript("arguments[0].click()", identifier);
+              let available = check ? await check_availability(identifier) : false;
+              available ? await identifier.click() : await browser.executeScript("arguments[0].click()", identifier);
             } else {
               // Call after execute step
               // await afterExecuteStep(tcc[i], bestMatchingData);
