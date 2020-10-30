@@ -117,7 +117,7 @@ describe("Test end to end session..", function () {
 
   let checkECconditionForMouseclick = async function (element, isclickable = true, isVisible = true) {
     let isPresent = EC.presenceOf(element);
-    console.log("isPresent--->", isPresent);
+    // console.log("isPresent--->", isPresent);
     console.log(status);
 
     return status;
@@ -125,7 +125,7 @@ describe("Test end to end session..", function () {
 
   let checkECcondition = async function (element, isclickable = true, isVisible = true) {
     let isPresent = EC.presenceOf(element);
-    console.log("isPresent--->", isPresent);
+    // console.log("isPresent--->", isPresent);
 
     // let conditionChecker = EC.and(isPresent, isVisible)
     conditional_timeout = timeout || 500;
@@ -141,7 +141,7 @@ describe("Test end to end session..", function () {
     }
     if (isVisible) {
       let isVisible = EC.visibilityOf(element);
-      console.log("isVisible ----->", isVisible);
+      // console.log("isVisible ----->", isVisible);
 
       conditionChecker = EC.and(isPresent, isVisible);
       console.log();
@@ -958,7 +958,7 @@ describe("Test end to end session..", function () {
                 let tag = tcc[i].objectrepository.tag;
                 if (!!DRIVEN_DATA[tag]) {
                   // take value from file
-                  value = DRIVEN_DATA[tag];
+                  value = DRIVEN_DATA[tag].toString();
                 } else {
                   // take value from db
                   if (tcc[i].objectrepository["element_attributes"]["type"] && tcc[i].objectrepository["element_attributes"]["type"].toLowerCase() === "password") {
