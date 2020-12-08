@@ -36,7 +36,8 @@ let identifier = false;
 let timeout = null;
 // let failureImage_path = "/home/amit/Documents/aitester-dev/server-exec/executor/Image-logs/error_view.png";
 // let image_path = process.env.IMG_PATH || "/home/amit/Documents/aitester-dev/server-exec/executor/image.png";
-let failureImage_path = process.env.ERR_IMG_PATH || "/srv/executor/error_view.png";
+let failureImage_path =
+  process.env.ERR_IMG_PATH || "/srv/executor/error_view.png";
 let image_path = process.env.IMG_PATH || "/srv/executor/image.png";
 
 let PAGINATION_XPATH = null;
@@ -63,7 +64,10 @@ describe("Test end to end session..", function () {
         }
         let element1 = await element(locator);
 
-        let status = await browser.wait(EC.presenceOf(element1), ele_present_timeout);
+        let status = await browser.wait(
+          EC.presenceOf(element1),
+          ele_present_timeout
+        );
         if (status) {
           console.log("success");
           return element1;
@@ -83,7 +87,10 @@ describe("Test end to end session..", function () {
   // check if element is still visible (wait till element is invisible)
   let checkElementInvisibility = async function (element, timeout) {
     try {
-      let invisibility = await browser.wait(EC.invisibilityOf(element), timeout);
+      let invisibility = await browser.wait(
+        EC.invisibilityOf(element),
+        timeout
+      );
       if (invisibility) {
         console.log("element invisible");
         return true;
@@ -115,7 +122,11 @@ describe("Test end to end session..", function () {
     }
   };
 
-  let checkECconditionForMouseclick = async function (element, isclickable = true, isVisible = true) {
+  let checkECconditionForMouseclick = async function (
+    element,
+    isclickable = true,
+    isVisible = true
+  ) {
     let isPresent = EC.presenceOf(element);
     // console.log("isPresent--->", isPresent);
     console.log(status);
@@ -123,7 +134,11 @@ describe("Test end to end session..", function () {
     return status;
   };
 
-  let checkECcondition = async function (element, isclickable = true, isVisible = true) {
+  let checkECcondition = async function (
+    element,
+    isclickable = true,
+    isVisible = true
+  ) {
     let isPresent = EC.presenceOf(element);
     // console.log("isPresent--->", isPresent);
 
@@ -136,7 +151,8 @@ describe("Test end to end session..", function () {
       conditionChecker = EC.and(isPresent, isClickable);
       console.log("isClickable ----->", isClickable);
 
-      status = status & (await browser.wait(conditionChecker, conditional_timeout));
+      status =
+        status & (await browser.wait(conditionChecker, conditional_timeout));
       console.log("clickable. --->", isClickable);
     }
     if (isVisible) {
@@ -146,7 +162,8 @@ describe("Test end to end session..", function () {
       conditionChecker = EC.and(isPresent, isVisible);
       console.log();
 
-      status = status & (await browser.wait(conditionChecker, conditional_timeout));
+      status =
+        status & (await browser.wait(conditionChecker, conditional_timeout));
     }
     // status = await browser.wait(conditionChecker, 10000)
     console.log(status);
@@ -186,7 +203,10 @@ describe("Test end to end session..", function () {
   };
 
   //// get best matching identifier
-  let get_best_matching_identifier = async function (objectrepository, action_type = "") {
+  let get_best_matching_identifier = async function (
+    objectrepository,
+    action_type = ""
+  ) {
     console.log("Finding element using selectors...");
 
     //----------------------- update heal component count in strapi --------------------
@@ -213,7 +233,8 @@ describe("Test end to end session..", function () {
     let get_healed_component = await healed_component.json();
     console.log("get_healed_component -->", get_healed_component);
 
-    get_healed_component = get_healed_component.data.applications[0].healedcomponents[0];
+    get_healed_component =
+      get_healed_component.data.applications[0].healedcomponents[0];
     // console.log("healed component", get_healed_component);
     // update
     // console.log("update------->");
@@ -262,12 +283,17 @@ describe("Test end to end session..", function () {
         }
       }
 
-      ELEMENT_FOUND ? "" : console.log("Failed by XPATHS ->", objectrepository.element_xpaths);
+      ELEMENT_FOUND
+        ? ""
+        : console.log("Failed by XPATHS ->", objectrepository.element_xpaths);
     }
 
     // Condition for found by ID
     if (objectrepository.element_id && !ELEMENT_FOUND) {
-      let selector = await get_locators(objectrepository, objectrepository.element_id);
+      let selector = await get_locators(
+        objectrepository,
+        objectrepository.element_id
+      );
       let count = await element.all(by.id(selector)).count();
 
       console.log("Trying by ID ->", selector);
@@ -283,9 +309,19 @@ describe("Test end to end session..", function () {
     }
 
     // Condition for found by NAME
-    if (objectrepository.element_attributes && "name" in objectrepository.element_attributes && !ELEMENT_FOUND) {
-      console.log("Trying by Name ->", objectrepository.element_attributes.name);
-      let selector = await get_locators(objectrepository, objectrepository.element_attributes.name);
+    if (
+      objectrepository.element_attributes &&
+      "name" in objectrepository.element_attributes &&
+      !ELEMENT_FOUND
+    ) {
+      console.log(
+        "Trying by Name ->",
+        objectrepository.element_attributes.name
+      );
+      let selector = await get_locators(
+        objectrepository,
+        objectrepository.element_attributes.name
+      );
       webelement = await checkelementpresent("name", by.name(selector));
       ELEMENT_FOUND = webelement ? true : false;
       if (webelement) {
@@ -300,7 +336,11 @@ describe("Test end to end session..", function () {
     }
 
     // Condition for found by CLASS and TEXT COMBO
-    if (objectrepository.element_css && objectrepository.element_css.length > 0 && !ELEMENT_FOUND) {
+    if (
+      objectrepository.element_css &&
+      objectrepository.element_css.length > 0 &&
+      !ELEMENT_FOUND
+    ) {
       let element_class = objectrepository.element_css;
       let tmp_class = "." + element_class.trim().split(" ").join(".");
       console.log("Trying by Class ->", tmp_class);
@@ -309,10 +349,17 @@ describe("Test end to end session..", function () {
 
       console.log("count -->", count);
 
-      if (count > 1 && objectrepository.value && objectrepository.value.length > 0) {
+      if (
+        count > 1 &&
+        objectrepository.value &&
+        objectrepository.value.length > 0
+      ) {
         console.log("cssContainingText -->", objectrepository.value);
 
-        webelement = await checkelementpresent("class", by.cssContainingText(selector, objectrepository.value));
+        webelement = await checkelementpresent(
+          "class",
+          by.cssContainingText(selector, objectrepository.value)
+        );
         if (webelement) {
           bestMatchingData.push({
             cssContainingText: [selector, objectrepository.value],
@@ -339,8 +386,14 @@ describe("Test end to end session..", function () {
     // Condition for found by Text
     if (objectrepository.value && !ELEMENT_FOUND) {
       console.log("Trying by Text ->", objectrepository.value);
-      let selector = await get_locators(objectrepository, objectrepository.value);
-      webelement = await checkelementpresent("text", by.xpath(`.//*[.="${selector}"]`));
+      let selector = await get_locators(
+        objectrepository,
+        objectrepository.value
+      );
+      webelement = await checkelementpresent(
+        "text",
+        by.xpath(`.//*[.="${selector}"]`)
+      );
       if (webelement) {
         bestMatchingData.push({ text: selector });
         ELEMENT_FOUND = true;
@@ -376,7 +429,9 @@ describe("Test end to end session..", function () {
             "var body=document.body;html=document.documentElement;return height=Math.max(body.scrollHeight,body.offsetHeight,html.clientHeight,html.scrollHeight,html.offsetHeight);"
           )
         );
-        let viewport = Number(await browser.executeScript("return window.innerHeight"));
+        let viewport = Number(
+          await browser.executeScript("return window.innerHeight")
+        );
 
         console.log("doc height ---> ", doc_height);
         console.log("view port ---> ", viewport);
@@ -397,7 +452,10 @@ describe("Test end to end session..", function () {
           stream.write(new Buffer.from(image, "base64"));
           stream.end();
 
-          let jsonreq = { image: "data:image/png;base64," + image, id: objectrepository.id };
+          let jsonreq = {
+            image: "data:image/png;base64," + image,
+            id: objectrepository.id,
+          };
 
           ai_data = await AIMatchReq(jsonreq);
           console.log("-----ai_response------");
@@ -448,23 +506,43 @@ describe("Test end to end session..", function () {
       return await checkelementpresent("id", by.id(strapiBestMatch[0][key]));
     } else if (key === "name") {
       bestMatchingData.push({ name: strapiBestMatch[0][key] });
-      return await checkelementpresent("name", by.name(strapiBestMatch[0][key]));
+      return await checkelementpresent(
+        "name",
+        by.name(strapiBestMatch[0][key])
+      );
     } else if (key === "css") {
       bestMatchingData.push({
         css: strapiBestMatch[0][key],
       });
-      return await checkelementpresent("check", by.css(strapiBestMatch[0][key]));
+      return await checkelementpresent(
+        "check",
+        by.css(strapiBestMatch[0][key])
+      );
     } else if (key === "cssContainingText") {
       bestMatchingData.push({
-        cssContainingText: [strapiBestMatch[0][key][0], strapiBestMatch[0][key][1]],
+        cssContainingText: [
+          strapiBestMatch[0][key][0],
+          strapiBestMatch[0][key][1],
+        ],
       });
-      return await checkelementpresent("cssContainingText", by.cssContainingText(strapiBestMatch[0][key][0], strapiBestMatch[0][key][1]));
+      return await checkelementpresent(
+        "cssContainingText",
+        by.cssContainingText(
+          strapiBestMatch[0][key][0],
+          strapiBestMatch[0][key][1]
+        )
+      );
     } else if (key === "xpath") {
       bestMatchingData.push({ xpath: strapiBestMatch[0][key] });
-      return await checkelementpresent("xpath", by.xpath(strapiBestMatch[0][key]));
+      return await checkelementpresent(
+        "xpath",
+        by.xpath(strapiBestMatch[0][key])
+      );
     } else if (key === "text") {
       bestMatchingData.push({ text: strapiBestMatch[0][key] });
-      return await checkelementpresent(by.xpath("text", `.//*[.="${strapiBestMatch[0][key]}"]`));
+      return await checkelementpresent(
+        by.xpath("text", `.//*[.="${strapiBestMatch[0][key]}"]`)
+      );
     }
   };
 
@@ -506,16 +584,25 @@ describe("Test end to end session..", function () {
     console.log("Received strapi data..");
 
     // Data driven file
-    console.log("ddt file data ------------->", data.data.testcases[0].ddt_file);
+    console.log(
+      "ddt file data ------------->",
+      data.data.testcases[0].ddt_file
+    );
     if (data.data.testcases[0].ddt_file) {
       if (data.data.testcases[0].ddt_file.ext === ".json") {
         // for json file
-        let response = await fetch(`${host}${data.data.testcases[0].ddt_file.url}`);
+        let response = await fetch(
+          `${host}${data.data.testcases[0].ddt_file.url}`
+        );
         DRIVEN_DATA = await response.json();
       } else if (data.data.testcases[0].ddt_file.ext === ".csv") {
         // for csv file
         var request = new XMLHttpRequest();
-        request.open("GET", `${host}${data.data.testcases[0].ddt_file.url}`, true);
+        request.open(
+          "GET",
+          `${host}${data.data.testcases[0].ddt_file.url}`,
+          true
+        );
         request.send(null);
         request.onreadystatechange = function () {
           if (request.readyState === 4 && request.status === 200) {
@@ -540,7 +627,10 @@ describe("Test end to end session..", function () {
             }
           }
         };
-      } else if (data.data.testcases[0].ddt_file.ext === ".xlsx" || data.data.testcases[0].ddt_file.ext === ".xls") {
+      } else if (
+        data.data.testcases[0].ddt_file.ext === ".xlsx" ||
+        data.data.testcases[0].ddt_file.ext === ".xls"
+      ) {
         // for xlsx file
         const getHeaders = (xl_data) => {
           console.log("xls data --->", xl_data);
@@ -568,10 +658,15 @@ describe("Test end to end session..", function () {
                 });
               } else if (workSheetsFromBuffer.length === 1) {
                 resolve({
-                  sheet1: { header: workSheetsFromBuffer[0]["data"][0], first_row: workSheetsFromBuffer[0]["data"][1] },
+                  sheet1: {
+                    header: workSheetsFromBuffer[0]["data"][0],
+                    first_row: workSheetsFromBuffer[0]["data"][1],
+                  },
                 });
               } else {
-                resolve(`Expected sheets: 1/2. Sheets in uploaded file: ${workSheetsFromBuffer.length}`);
+                resolve(
+                  `Expected sheets: 1/2. Sheets in uploaded file: ${workSheetsFromBuffer.length}`
+                );
               }
             } catch (error) {
               console.error("Error in getHeaders function");
@@ -580,7 +675,10 @@ describe("Test end to end session..", function () {
             }
           });
         };
-        console.log("data --->", `${host}${data.data.testcases[0].ddt_file.url}`);
+        console.log(
+          "data --->",
+          `${host}${data.data.testcases[0].ddt_file.url}`
+        );
         let response = await axios({
           method: "get",
           responseType: "arraybuffer",
@@ -670,7 +768,9 @@ describe("Test end to end session..", function () {
         } else {
           timeout = null;
         }
-        const strapiBestMatch = tcc[i].objectrepository.best_match ? JSON.parse(tcc[i].objectrepository.best_match) : [];
+        const strapiBestMatch = tcc[i].objectrepository.best_match
+          ? JSON.parse(tcc[i].objectrepository.best_match)
+          : [];
 
         // ------------------- select working tab -----------------------
         let windowHandles = browser.getAllWindowHandles();
@@ -693,7 +793,11 @@ describe("Test end to end session..", function () {
         });
 
         // get grid data -------
-        const getRowCol = async (xpath_, captured_row_data, grid_pagination_xpath) => {
+        const getRowCol = async (
+          xpath_,
+          captured_row_data,
+          grid_pagination_xpath
+        ) => {
           return new Promise(async (resolve, reject) => {
             try {
               console.log("grid_pagination_xpath ---->", grid_pagination_xpath);
@@ -744,8 +848,12 @@ describe("Test end to end session..", function () {
                 console.log("navigation xpath", xpath_[0]);
                 console.log("current pagination ---->", page_count);
 
-                let rows = await element.all(by.xpath(`${xpath_[0]}tr`)).count();
-                let col = await element.all(by.xpath(`${xpath_[0]}tr[2]/td`)).count();
+                let rows = await element
+                  .all(by.xpath(`${xpath_[0]}tr`))
+                  .count();
+                let col = await element
+                  .all(by.xpath(`${xpath_[0]}tr[2]/td`))
+                  .count();
                 console.log("rows -->", rows, "col -->", col);
 
                 // console.log("captured_row_data --->", captured_row_data[1]);
@@ -754,7 +862,9 @@ describe("Test end to end session..", function () {
                   let current_row_data = [];
                   for (let j = 1; j <= col; j++) {
                     // if current column length not equal to column length
-                    let current_col_length = await element.all(by.xpath(`${xpath_[0]}tr[${i}]/td`)).count();
+                    let current_col_length = await element
+                      .all(by.xpath(`${xpath_[0]}tr[${i}]/td`))
+                      .count();
                     if (current_col_length === col) {
                       actual_xpath = `${xpath_[0]}tr[${i}]/td[${j}]`;
                       await element(by.xpath(`${xpath_[0]}tr[${i}]/td[${j}]`))
@@ -766,7 +876,10 @@ describe("Test end to end session..", function () {
                     }
                   }
                   // console.log("current_row data", current_row_data[1]);
-                  if (JSON.stringify(current_row_data) == JSON.stringify(captured_row_data)) {
+                  if (
+                    JSON.stringify(current_row_data) ==
+                    JSON.stringify(captured_row_data)
+                  ) {
                     console.log("match found at row", i);
 
                     FOUND_ELEMENT = true;
@@ -788,7 +901,10 @@ describe("Test end to end session..", function () {
                         FOUND_ELEMENT = true;
                         pagination = false;
                       } else {
-                        console.log("navigate next --------------------->", grid_pagination_xpath);
+                        console.log(
+                          "navigate next --------------------->",
+                          grid_pagination_xpath
+                        );
 
                         element(by.xpath(`${grid_pagination_xpath}`)).click();
                       }
@@ -848,22 +964,141 @@ describe("Test end to end session..", function () {
         // ---------------------switched to working tab----------------
         console.log("steps action ---->", tcc[i].objectrepository.action);
         console.log("Best match from Strapi");
-        if (tcc[i].objectrepository.action === "custom") {
+        if (tcc[i].objectrepository.action === "custom_api") {
+          console.log("came to custom_api step");
+
+          const data = tcc[i].objectrepository.api_attributes;
+          // const data = {
+          //   Method: "GET",
+          //   AceEditorValue: '{\n  "hello":"world"\n}',
+          //   Uri: "https://easelqa.com",
+          //   AuthorizationUsername: "Daksh",
+          //   QueryParametersAdd: [
+          //     {
+          //       QueryParametersKey: "count",
+          //       QueryParametersValue: "10",
+          //     },
+          //   ],
+          //   BodyFormDataAdd: [],
+          //   PathParametersAdd: [
+          //     {
+          //       PathParametersKey: "count",
+          //       PathParametersValue: "10",
+          //     },
+          //   ],
+          //   AuthorizationPassword: "Rathod",
+          //   HeadersAdd: [
+          //     {
+          //       HeadersKey: "content-type",
+          //       HeadersValue: "application/json",
+          //     },
+          //   ],
+          //   BodySelectedMenu: "JSON",
+          // };
+          const returnobj = (arrays, form = false) => {
+            const obj = {};
+            const formdata = FormData();
+            for (const arr in arrays) {
+              const Key = _.filter(Object.keys(arr), function (e) {
+                return e.includes("Key");
+              });
+              const Value = _.filter(Object.keys(arr), function (e) {
+                return e.includes("Value");
+              });
+              if (Key.length > 0 && Value.length > 0) {
+                obj[Key[0]] = Value[0];
+                if (form) {
+                  formdata.append(Key[0], Value[0]);
+                }
+              }
+            }
+            if (form) {
+              return formdata;
+            }
+            return obj;
+          };
+          // const params = returnobj(data.PathParametersAdd);
+          const params = returnobj(data.QueryParametersAdd);
+          const headers = returnobj(data.HeadersAdd);
+          let url = data.Uri;
+
+          if (
+            data.BodySelectedMenu === "JSON" ||
+            data.BodySelectedMenu === "XML" ||
+            data.BodySelectedMenu === "TEXT"
+          ) {
+            if (data.BodySelectedMenu === "JSON") {
+              try {
+                const jsondata = JSON.parse(data.AceEditorValue);
+                headers["Content-Type"] = "application/json";
+              } catch (error) {
+                throw "Not serializable";
+              }
+            }
+            const resp = await axios({
+              method: data.Method,
+              url,
+              headers,
+              params,
+              auth: {
+                username: data.AuthorizationUsername,
+                password: data.AuthorizationPassword,
+              },
+              data: data.AceEditorValue,
+            });
+          } else if (data.BodySelectedMenu === "FormData") {
+            const formdata = returnobj(data.BodyFormDataAdd, true);
+            headers["Content-Type"] = "multipart/form-data";
+            const resp = await axios({
+              method: data.Method,
+              url,
+              headers,
+              params,
+              auth: {
+                username: data.AuthorizationUsername,
+                password: data.AuthorizationPassword,
+              },
+              data: formdata,
+            });
+          } else if (data.BodySelectedMenu === "None") {
+            const resp = await axios({
+              method: data.Method,
+              url,
+              headers,
+              params,
+              auth: {
+                username: data.AuthorizationUsername,
+                password: data.AuthorizationPassword,
+              },
+            });
+          }
+        } else if (tcc[i].objectrepository.action === "custom") {
           console.log("came to custom steps");
           if (strapiBestMatch.length > 0) {
             identifier = await get_previous_best_match(strapiBestMatch);
           }
           if (!identifier) {
-            identifier = await get_best_matching_identifier(tcc[i].objectrepository, tcc[i].objectrepository.action);
+            identifier = await get_best_matching_identifier(
+              tcc[i].objectrepository,
+              tcc[i].objectrepository.action
+            );
           }
           if (identifier) {
             let check = null;
-            if (tcc[i].objectrepository.expected_condition === "invisibilityOf") {
+            if (
+              tcc[i].objectrepository.expected_condition === "invisibilityOf"
+            ) {
               check = await checkElementInvisibility(identifier, timeout);
-              check ? console.log("element invisible") : console.log("element visible");
-            } else if (tcc[i].objectrepository.expected_condition === "visibilityOf") {
+              check
+                ? console.log("element invisible")
+                : console.log("element visible");
+            } else if (
+              tcc[i].objectrepository.expected_condition === "visibilityOf"
+            ) {
               check = await checkElementVisiblilty(identifier, timeout);
-              check ? console.log("element visible") : console.log("element not visible");
+              check
+                ? console.log("element visible")
+                : console.log("element not visible");
             }
           } else {
             throw "Cannot find Element";
@@ -903,15 +1138,22 @@ describe("Test end to end session..", function () {
               source = await get_previous_best_match(strapiBestMatch);
             }
             if (!source) {
-              source = await get_best_matching_identifier(tcc[i].objectrepository);
+              source = await get_best_matching_identifier(
+                tcc[i].objectrepository
+              );
             }
 
-            const nextstrapiBestMatch = tcc[drop_element_id].objectrepository.best_match ? JSON.parse(tcc[drop_element_id].objectrepository.best_match) : [];
+            const nextstrapiBestMatch = tcc[drop_element_id].objectrepository
+              .best_match
+              ? JSON.parse(tcc[drop_element_id].objectrepository.best_match)
+              : [];
             if (nextstrapiBestMatch.length > 0) {
               target = await get_previous_best_match(nextstrapiBestMatch);
             }
             if (!target) {
-              target = await get_best_matching_identifier(tcc[i].objectrepository);
+              target = await get_best_matching_identifier(
+                tcc[i].objectrepository
+              );
             }
 
             if (source && target) {
@@ -926,7 +1168,9 @@ describe("Test end to end session..", function () {
             identifier = await get_previous_best_match(strapiBestMatch);
           }
           if (!identifier) {
-            identifier = await get_best_matching_identifier(tcc[i].objectrepository);
+            identifier = await get_best_matching_identifier(
+              tcc[i].objectrepository
+            );
           }
           //if (condition) {
           if (identifier) {
@@ -941,14 +1185,19 @@ describe("Test end to end session..", function () {
           } catch (error) {
             throw "Cannot open Url";
           }
-        } else if (tcc[i].objectrepository.action === "text_input" || tcc[i].objectrepository.action === "fileupload") {
+        } else if (
+          tcc[i].objectrepository.action === "text_input" ||
+          tcc[i].objectrepository.action === "fileupload"
+        ) {
           console.log("Input Text");
 
           if (strapiBestMatch.length > 0) {
             identifier = await get_previous_best_match(strapiBestMatch);
           }
           if (!identifier) {
-            identifier = await get_best_matching_identifier(tcc[i].objectrepository);
+            identifier = await get_best_matching_identifier(
+              tcc[i].objectrepository
+            );
           }
           if (identifier) {
             if (tcc[i].objectrepository.action == "text_input") {
@@ -961,8 +1210,16 @@ describe("Test end to end session..", function () {
                   value = DRIVEN_DATA[tag].toString();
                 } else {
                   // take value from db
-                  if (tcc[i].objectrepository["element_attributes"]["type"] && tcc[i].objectrepository["element_attributes"]["type"].toLowerCase() === "password") {
-                    const bufferText1 = Buffer.from(tcc[i].objectrepository.element_value, "hex");
+                  if (
+                    tcc[i].objectrepository["element_attributes"]["type"] &&
+                    tcc[i].objectrepository["element_attributes"][
+                      "type"
+                    ].toLowerCase() === "password"
+                  ) {
+                    const bufferText1 = Buffer.from(
+                      tcc[i].objectrepository.element_value,
+                      "hex"
+                    );
                     const decode_value = bufferText1.toString();
                     value = decode_value;
                   } else {
@@ -971,8 +1228,16 @@ describe("Test end to end session..", function () {
                 }
               } else {
                 // take value from db
-                if (tcc[i].objectrepository["element_attributes"]["type"] && tcc[i].objectrepository["element_attributes"]["type"].toLowerCase() === "password") {
-                  const bufferText1 = Buffer.from(tcc[i].objectrepository.element_value, "hex");
+                if (
+                  tcc[i].objectrepository["element_attributes"]["type"] &&
+                  tcc[i].objectrepository["element_attributes"][
+                    "type"
+                  ].toLowerCase() === "password"
+                ) {
+                  const bufferText1 = Buffer.from(
+                    tcc[i].objectrepository.element_value,
+                    "hex"
+                  );
                   const decode_value = bufferText1.toString();
                   if (decode_value === "") {
                     value = tcc[i].objectrepository.element_value;
@@ -991,7 +1256,11 @@ describe("Test end to end session..", function () {
               let check = await checkECcondition(identifier, false);
 
               // check ? await identifier.sendKeys(tcc[i].objectrepository.element_value) : "";
-              check ? (result && result.length > 1 ? await send_key_downs(identifier, result) : await identifier.sendKeys(value)) : "";
+              check
+                ? result && result.length > 1
+                  ? await send_key_downs(identifier, result)
+                  : await identifier.sendKeys(value)
+                : "";
               //   if (value.length > 150) {
               //    // handle string too long error
               //    for (let char of value) {
@@ -1002,17 +1271,25 @@ describe("Test end to end session..", function () {
               //   }
             } else {
               let filename = tcc[i].objectrepository.fileupload_url.name;
+              console.log(filename);
               const file = fs.createWriteStream(`${ch_path}/${filename}`);
               const request = http
-                .get(host + tcc[i].objectrepository.fileupload_url.url, async function (response) {
-                  response.pipe(file);
-                  file.on("finish", function () {
-                    file.close(); // close() is async, call cb after close completes.
-                  });
-                  let absolutePath = path.resolve(ch_path, filename);
-                  let check = await checkECcondition(identifier, false, false);
-                  check ? await identifier.sendKeys(absolutePath) : "";
-                })
+                .get(
+                  host + tcc[i].objectrepository.fileupload_url.url,
+                  async function (response) {
+                    response.pipe(file);
+                    file.on("finish", function () {
+                      file.close(); // close() is async, call cb after close completes.
+                    });
+                    let absolutePath = path.resolve(ch_path, filename);
+                    let check = await checkECcondition(
+                      identifier,
+                      false,
+                      false
+                    );
+                    check ? await identifier.sendKeys(absolutePath) : "";
+                  }
+                )
                 .on("error", function (err) {
                   fs.unlink(dest);
                 });
@@ -1025,7 +1302,9 @@ describe("Test end to end session..", function () {
           console.log("Mouse Click");
 
           if (
-            (Object.keys(tcc[i].objectrepository.grid_data).length === 0 && tcc[i].objectrepository.grid_data.constructor === Object) === false &&
+            (Object.keys(tcc[i].objectrepository.grid_data).length === 0 &&
+              tcc[i].objectrepository.grid_data.constructor === Object) ===
+              false &&
             tcc[i].objectrepository.grid_pagination_xpath !== null &&
             tcc[i].objectrepository.grid_pagination_xpath !== undefined
           ) {
@@ -1036,7 +1315,10 @@ describe("Test end to end session..", function () {
               captured_row_data.push(d.replace(/\n/g, ""));
             }
             // GET FULL XPATH WHICH IS LONGER IN LENGTH
-            let xpath_ = tcc[i].objectrepository.element_xpaths.sort(function (a, b) {
+            let xpath_ = tcc[i].objectrepository.element_xpaths.sort(function (
+              a,
+              b
+            ) {
               return b.length - a.length;
             })[0];
             xpath_ = xpath_.split("tr");
@@ -1048,11 +1330,17 @@ describe("Test end to end session..", function () {
             // console.log("rows -->", rows, "col -->", col);
 
             // GET ROWS/COLUMNS DATA
-            let actual_xpath = await getRowCol(xpath_, captured_row_data, tcc[i].objectrepository.grid_pagination_xpath);
+            let actual_xpath = await getRowCol(
+              xpath_,
+              captured_row_data,
+              tcc[i].objectrepository.grid_pagination_xpath
+            );
             console.log("actual_xpath ---->", actual_xpath);
 
             // TAKE ACTION ON XPATH
-            let find_xpath = `${actual_xpath.split("td")[0]}td${xpath_[1].split("td")[1]}`;
+            let find_xpath = `${actual_xpath.split("td")[0]}td${
+              xpath_[1].split("td")[1]
+            }`;
             console.log("final element found --->", find_xpath);
             if (find_xpath.includes("svg")) {
               find_xpath = find_xpath.split("/svg")[0];
@@ -1067,7 +1355,9 @@ describe("Test end to end session..", function () {
               identifier = await get_previous_best_match(strapiBestMatch);
             }
             if (!identifier) {
-              identifier = await get_best_matching_identifier(tcc[i].objectrepository);
+              identifier = await get_best_matching_identifier(
+                tcc[i].objectrepository
+              );
             }
             // console.log("identifier -->", identifier);
 
@@ -1076,8 +1366,15 @@ describe("Test end to end session..", function () {
               let check = await checkECconditionForMouseclick(identifier);
               console.log("is element available ------------->", check);
               // await browser.executeScript("arguments[0].click()", identifier);
-              let available = check ? await check_availability(identifier) : false;
-              available ? await identifier.click() : await browser.executeScript("arguments[0].click()", identifier);
+              let available = check
+                ? await check_availability(identifier)
+                : false;
+              available
+                ? await identifier.click()
+                : await browser.executeScript(
+                    "arguments[0].click()",
+                    identifier
+                  );
             } else {
               // Call after execute step
               // await afterExecuteStep(tcc[i], bestMatchingData);
@@ -1091,7 +1388,9 @@ describe("Test end to end session..", function () {
             identifier = await get_previous_best_match(strapiBestMatch);
           }
           if (!identifier) {
-            identifier = await get_best_matching_identifier(tcc[i].objectrepository);
+            identifier = await get_best_matching_identifier(
+              tcc[i].objectrepository
+            );
           }
 
           if (identifier) {
@@ -1123,7 +1422,9 @@ describe("Test end to end session..", function () {
             identifier = await get_previous_best_match(strapiBestMatch);
           }
           if (!identifier) {
-            identifier = await get_best_matching_identifier(tcc[i].objectrepository);
+            identifier = await get_best_matching_identifier(
+              tcc[i].objectrepository
+            );
           }
 
           if (identifier) {
@@ -1139,12 +1440,16 @@ describe("Test end to end session..", function () {
             identifier = await get_previous_best_match(strapiBestMatch);
           }
           if (!identifier) {
-            identifier = await get_best_matching_identifier(tcc[i].objectrepository);
+            identifier = await get_best_matching_identifier(
+              tcc[i].objectrepository
+            );
           }
 
           if (identifier) {
             // await browser.executeScript(`arguments[0].value=${tcc[i].objectrepository.element_value}`, identifier);
-            await identifier.$(`[value="${tcc[i].objectrepository.element_value}"]`).click();
+            await identifier
+              .$(`[value="${tcc[i].objectrepository.element_value}"]`)
+              .click();
           } else {
             // Call after execute step
             // await afterExecuteStep(tcc[i], bestMatchingData);
@@ -1171,12 +1476,19 @@ describe("Test end to end session..", function () {
 
   async function failureScreenShot() {
     let id = await browser.takeScreenshot().then(async function (png) {
-      let saveImage = await fs.writeFile(failureImage_path, png, { encoding: "base64" }, async function (err) {
-        console.log("file_created");
-      });
+      let saveImage = await fs.writeFile(
+        failureImage_path,
+        png,
+        { encoding: "base64" },
+        async function (err) {
+          console.log("file_created");
+        }
+      );
       // let output = Buffer.from(png);
       let form = new FormData();
-      form.append("files", fs.createReadStream(failureImage_path), { filename: "error_view.png" });
+      form.append("files", fs.createReadStream(failureImage_path), {
+        filename: "error_view.png",
+      });
       const config = { headers: form.getHeaders() };
       let fileUploadReq = await axios.post(`${host}/upload`, form, config);
       console.log(fileUploadReq.data);
@@ -1214,8 +1526,14 @@ async function AutoHeal(ai_data, id) {
   let centerX = (data.startX + data.endX) / 2;
   let centerY = (data.startY + data.endY) / 2;
   let find_ele = await FindELementReq();
-  find_ele.data = find_ele.data.replace("XCOORD", centerX * resolution_ratio_width);
-  find_ele.data = find_ele.data.replace("YCOORD", centerY * resolution_ratio_height);
+  find_ele.data = find_ele.data.replace(
+    "XCOORD",
+    centerX * resolution_ratio_width
+  );
+  find_ele.data = find_ele.data.replace(
+    "YCOORD",
+    centerY * resolution_ratio_height
+  );
   var element_resp = await browser.executeScript(find_ele.data);
   webelement = element_resp.element;
 
@@ -1264,25 +1582,38 @@ async function check_availability(c_element) {
     try {
       var center_js = `return document.elementFromPoint(${centx}, ${centy}-window.scrollY)`;
       var center_pt_overlayelement = element(by.js(center_js));
-      let center_pt_notavailable = center_pt_overlayelement === null ? false : true;
+      let center_pt_notavailable =
+        center_pt_overlayelement === null ? false : true;
 
       var start_js = `return document.elementFromPoint(${x}+5, ${y}+5-window.scrollY)`;
       var start_pt_overlayelement = element(by.js(start_js));
-      let start_pt_notavailable = start_pt_overlayelement === null ? false : true;
+      let start_pt_notavailable =
+        start_pt_overlayelement === null ? false : true;
 
       console.log("----------trying----------");
-      if (center_pt_notavailable && (await center_pt_overlayelement.equals(c_element))) {
+      if (
+        center_pt_notavailable &&
+        (await center_pt_overlayelement.equals(c_element))
+      ) {
         console.log("center yes");
         break;
-      } else if (start_pt_notavailable && (await start_pt_overlayelement.equals(c_element))) {
+      } else if (
+        start_pt_notavailable &&
+        (await start_pt_overlayelement.equals(c_element))
+      ) {
         console.log("start yes");
         break;
       } else if (center_pt_notavailable && start_pt_notavailable) {
         console.log("yes");
-        let parentElement = await center_pt_overlayelement.element(by.xpath(".."));
+        let parentElement = await center_pt_overlayelement.element(
+          by.xpath("..")
+        );
 
         let parentElement_notavailable = parentElement == null ? false : true;
-        if (parentElement_notavailable && (await parentElement.equals(c_element))) {
+        if (
+          parentElement_notavailable &&
+          (await parentElement.equals(c_element))
+        ) {
           console.log("parent yes");
           // await parentElement.click()
           c_element = parentElement;
@@ -1292,7 +1623,10 @@ async function check_availability(c_element) {
         // console.log(parentElement1);
 
         parentElement_notavailable = parentElement1 == null ? false : true;
-        if (parentElement_notavailable && (await parentElement1.equals(c_element))) {
+        if (
+          parentElement_notavailable &&
+          (await parentElement1.equals(c_element))
+        ) {
           console.log("parent parent yes");
           // await parentElement1.click()
           c_element = parentElement;

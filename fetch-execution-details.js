@@ -6,7 +6,8 @@ const rmq_host = process.env.RMQ_HOST || "amqp://localhost";
 const url = host + "/graphql";
 const objectrepository = host + "/objectrepositories/";
 const testsessionexecution = host + "/testsessionexecutions/";
-const aimatch = process.env.VISION_API_HOST || "http://localhost:9502/vision/api";
+const aimatch =
+  process.env.VISION_API_HOST || "http://localhost:9502/vision/api";
 const moment = require("moment");
 const _ = require("lodash");
 const socket = require("socket.io-client")(host);
@@ -85,6 +86,7 @@ const strapiReq = async function () {
       url
       provider
     }
+    api_attributes
   }`;
 
   console.log("testcase id", testcase_id);
@@ -226,7 +228,9 @@ const beforeExecution = async function () {
       console.log(testcaseexecution_json);
 
       // Set testcase execution id as a global
-      testcaseexecution_id = testcaseexecution_json.data.createTestcaseexecution.testcaseexecution.id;
+      testcaseexecution_id =
+        testcaseexecution_json.data.createTestcaseexecution.testcaseexecution
+          .id;
     } catch (error) {
       console.log(error);
     }
@@ -256,7 +260,11 @@ const afterExecuteStep = async function (step, best_match) {
     type: "ui",
     action: `${step.objectrepository.action}`,
     index: `${Number(step.sequence_number)}`,
-    description: `${step.objectrepository.description ? step.objectrepository.description.replace(/"/g, '\\"') : ""}`,
+    description: `${
+      step.objectrepository.description
+        ? step.objectrepository.description.replace(/"/g, '\\"')
+        : ""
+    }`,
     testcaseexecution: `${testcaseexecution_id}`,
     objectrepository: `${step.objectrepository.id}`,
   };
@@ -277,7 +285,11 @@ const afterExecuteStep = async function (step, best_match) {
                 type: "ui",
                 action: "${step.objectrepository.action}",
                 index: ${step.sequence_number},
-                description: "${step.objectrepository.description ? step.objectrepository.description.replace(/"/g, '\\"') : ""}"
+                description: "${
+                  step.objectrepository.description
+                    ? step.objectrepository.description.replace(/"/g, '\\"')
+                    : ""
+                }"
                 testcaseexecution: "${testcaseexecution_id}",
 		            objectrepository: "${step.objectrepository.id}"
               }
@@ -308,8 +320,14 @@ const afterExecuteStep = async function (step, best_match) {
   );
 
   // Send best matching to strapi for single step
-  if (step.sequence_number !== "1" && step.objectrepository.action !== "open_url" && best_match.length > 0) {
-    const strapiBestMatch = step.objectrepository.best_match ? JSON.parse(step.objectrepository.best_match) : [];
+  if (
+    step.sequence_number !== "1" &&
+    step.objectrepository.action !== "open_url" &&
+    best_match.length > 0
+  ) {
+    const strapiBestMatch = step.objectrepository.best_match
+      ? JSON.parse(step.objectrepository.best_match)
+      : [];
     var compareOldNew = isArrayEqual(best_match, strapiBestMatch);
     if (!compareOldNew) {
       try {
@@ -330,7 +348,10 @@ const afterExecuteStep = async function (step, best_match) {
                 id
               }
             }
-          }`.format(step.objectrepository.id, JSON.stringify(best_match).replace(/"/g, '\\"')),
+          }`.format(
+              step.objectrepository.id,
+              JSON.stringify(best_match).replace(/"/g, '\\"')
+            ),
           }),
         });
       } catch (error) {
@@ -358,7 +379,10 @@ const failureUpdate = async function (step, error, imageId) {
                 index: ${step.sequence_number},
                 error_log: "${error}",
                 error_view_id: "${imageId}"
-                description: "${step.objectrepository.description.replace(/"/g, '\\"')}",
+                description: "${step.objectrepository.description.replace(
+                  /"/g,
+                  '\\"'
+                )}",
                 testcaseexecution: "${testcaseexecution_id}",
 	              objectrepository: "${step.objectrepository.id}",
               }
@@ -418,18 +442,26 @@ const afterExecution = async function (status) {
     } catch (error) {
       console.log(error);
     }
-    const aimatch_heal = await fetch(testsessionexecution + testsessionexecution_id, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    const aimatch_heal = await fetch(
+      testsessionexecution + testsessionexecution_id,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
     const aimatch_heal_json = await aimatch_heal.json();
 
     if ("testsuite" in aimatch_heal_json) {
       // if testsuite is not default then push to rabbitmq
-      if (!!aimatch_heal_json.testsuite && aimatch_heal_json.testsuite.suite_name !== "default") {
-        let tse_data = status ? { total_pass: Number(aimatch_heal_json.total_pass) + 1 } : { total_fail: Number(aimatch_heal_json.total_fail) + 1 };
+      if (
+        !!aimatch_heal_json.testsuite &&
+        aimatch_heal_json.testsuite.suite_name !== "default"
+      ) {
+        let tse_data = status
+          ? { total_pass: Number(aimatch_heal_json.total_pass) + 1 }
+          : { total_fail: Number(aimatch_heal_json.total_fail) + 1 };
         fetch(testsessionexecution + testsessionexecution_id, {
           method: "PUT",
           headers: {
@@ -445,7 +477,9 @@ const afterExecution = async function (status) {
     await socket.emit(
       "ui_execution",
       (done_testcaseexecution = {
-        status: status ? "testcaseexecution completed" : "testcaseexecution failed",
+        status: status
+          ? "testcaseexecution completed"
+          : "testcaseexecution failed",
         testcase_id: testcase_id,
         testcaseexecution_id: testcaseexecution_id,
         end_time: moment().format("MM-DD-YYYY H:mm:ss"),
@@ -490,8 +524,14 @@ const sendresponse = () => {
   amqp.connect(rmq_host, (err, conn) => {
     conn.createChannel((err, ch) => {
       const q = "testdecider";
-      const msg = { testsessionid: Number(testsessionexecution_id), environment_id, browser: browser_name };
-      console.log(`\n PUSHING ${testsessionexecution_id} TO QUEUE ${q} ON amqp://localhost`);
+      const msg = {
+        testsessionid: Number(testsessionexecution_id),
+        environment_id,
+        browser: browser_name,
+      };
+      console.log(
+        `\n PUSHING ${testsessionexecution_id} TO QUEUE ${q} ON amqp://localhost`
+      );
       ch.assertQueue(q, { durable: false });
       ch.sendToQueue(q, Buffer.from(JSON.stringify(msg)));
     });
@@ -515,7 +555,9 @@ const sendresponsetestcase = (status) => {
         index: 1,
         type: "testcase",
       };
-      console.log(`\n PUSHING ${testsessionexecution_id} TO QUEUE ${q} ON amqp://localhost`);
+      console.log(
+        `\n PUSHING ${testsessionexecution_id} TO QUEUE ${q} ON amqp://localhost`
+      );
       ch.assertQueue(q, { durable: false });
       ch.sendToQueue(q, Buffer.from(JSON.stringify(msg)));
     });
